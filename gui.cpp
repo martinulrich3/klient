@@ -149,7 +149,7 @@ void gui::cti ()
 }
 void gui::PacketFromData (packet & p,QByteArray * data)
 {
-	QVector <int> * poziceLomeno=new QVector <int> (10);
+	QVector <int> * poziceLomeno=new QVector <int> (0);
 	int index=0;
 	int pocatek=0;
 	int flag=0;
@@ -181,24 +181,24 @@ void gui::PacketFromData (packet & p,QByteArray * data)
 			pocatek=lomeno+2;
 			break;
 			case 1:
-			dataarray.append (data->mid (pocatek,lomeno));
+			dataarray.append (data->mid (pocatek,lomeno-pocatek));
+		
 			p.data.append (dataarray);
 			pocatek=lomeno+2;
 				break;
 			case 2:
-			receiver.append (data->mid (pocatek,lomeno));
+			receiver.append (data->mid (pocatek,lomeno-pocatek));
 			p.receiver.append (receiver);
 			pocatek=lomeno+2;
 			break;
 			case 3:
-			sender.append (data->mid (pocatek,lomeno));
+			sender.append (data->mid (pocatek,lomeno-pocatek));
 			p.sender.append (sender);
 			pocatek=lomeno+2;
-			break;
-			case 4:
-				optionsarray.append (data->at (data->size ()-1));
+			optionsarray.append (data->at (data->size ()-1));
 				p.options=optionsarray.toInt ();
 				break;
+			break;
 		}
 	}
 }
@@ -213,7 +213,7 @@ QByteArray gui::DataFromPacket (packet p)
 	data.append ("//");
 	data.append (p.sender.toLatin1 ());
 	data.append ("//");
-	data.append (p.options);
+	data.append (QByteArray::number (p.options));
 	data.append ('\0');
 	return data;
 }
@@ -233,7 +233,6 @@ void gui::login ()
 	prihlasovaciPacket.options=0;
 	QByteArray testdata=DataFromPacket (prihlasovaciPacket);
 	qDebug (testdata);
-	socket->write ("abcd",4);
 	int poslano=socket->write (DataFromPacket (prihlasovaciPacket));
 	int bytestowrite=socket->bytesToWrite ();
 	qDebug (QByteArray::number (bytestowrite));
